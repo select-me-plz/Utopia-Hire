@@ -1,0 +1,143 @@
+<div class="dashboard">
+  <nav class="topbar">
+    <div class="brand">
+      <img src="assets/utopiatranspareent.png" alt="AI Hiring logo" />
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="user">
+      <div class="welcome-text">
+        <span class="label">Welcome</span>
+        <span class="name">{{ userFullName() }}</span>
+      </div>
+      <button class="logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <header class="dashboard-hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>Level up your job search journey</h1>
+        <p>
+          Upload multiple CVs, compare versions, and let the AI guide your next
+          improvement cycle.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary" (click)="triggerFileInput()">Upload CV</button>
+          <button class="btn-secondary" routerLink="/landing">Explore Features</button>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="orb orb-primary"></div>
+        <div class="orb orb-secondary"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <main class="main-content">
+      <section class="stats-grid" *ngIf="hasCV()">
+
+        <div class="stat-card glass practice-card" (click)="chatMode.set('interview')">
+          <span class="stat-label">Practice Sessions</span>
+          <h2 class="stat-value">{{ hasCV() ? 'Beta' : '—' }}</h2>
+          <p class="stat-desc">AI-powered interview coaching coming soon.</p>
+        </div>
+      </section>
+
+      <section class="cvs-section glass">
+        <div class="section-header">
+          <div>
+            <h2>Resume Workspace</h2>
+            <p>Upload, compare, and improve multiple versions.</p>
+            <h2>Current CVs: {{ cvStatus()?.uploadedCvs!.length || 0 }}</h2>
+          </div>
+          <button class="btn-ghost" (click)="triggerFileInput()">Add CV</button>
+        </div>
+
+        <input type="file" id="cv-file-input" accept=".pdf" (change)="onFileSelected($event)" style="display: none" />
+
+        <div class="cvs-list">
+
+          <!-- Loop through CVs -->
+          <div *ngFor="let cv of cvStatus()?.uploadedCvs">
+
+            <!-- Collapsed simple text view -->
+            <div class="cv-list-item" *ngIf="expandedCv()?._id !== cv._id" (click)="expandCv(cv)">
+              {{ cv.name }}
+            </div>
+
+            <!-- Expanded card view -->
+            <div class="cv-card cv-details-card" *ngIf="expandedCv()?._id === cv._id" (click)="chatMode.set('cv')">
+              <div class="card-content">
+                <div class="cv-icon">📄</div>
+                <h3 class="card-title">{{ cv.name }}</h3>
+
+                <p class="card-text">
+                  {{ cv.cvImprovements ? 'AI suggestions available' : 'Processing improvements…' }}
+                </p>
+
+                <button class="see-more-btn" (click)="toggleImprovements(cv._id)">
+                  {{
+                  expandedImprovement() === cv._id
+                  ? 'Hide AI Suggestions'
+                  : 'View AI Suggestions'
+                  }}
+                </button>
+
+                <!-- Improvements Pane -->
+                <div *ngIf="expandedImprovement() === cv._id" class="improvements-section">
+                  <h4>AI Suggestions</h4>
+
+                  <div *ngIf="cv.cvImprovements; else processing">
+                    <p>{{ cv.cvImprovements }}</p>
+                  </div>
+
+                  <ng-template #processing>
+                    <p class="no-improvements">
+                      AI is still generating improvements…
+                    </p>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- Upload Error -->
+        <div *ngIf="uploadError()" class="error-message">
+          {{ uploadError() }}
+        </div>
+
+        <div *ngIf="isLoading()" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Uploading and analysing your CV…</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Chat sidebar -->
+    <aside *ngIf="hasCV()" class="chat-sidebar glass">
+      <div class="chat-container">
+        @if(chatMode() === null){
+          <h2 class="chat-title">Welcome to AI Hiring Assistant</h2>
+          <p>Select a CV to start improving or practice interview sessions.</p>
+        }
+        @else{
+          @if(chatMode() === 'interview'){
+            <h2 class="chat-title">AI Interview Coach</h2>
+            <p>Interactive interview prep powered by your uploaded CVs. {{response()}}</p>
+          }
+          @if(chatMode() === 'cv'){
+            <h2 class="chat-title">Resume Improvement: Discussing "{{ expandedCv()?.name }}"</h2>
+            <p>Get AI-powered suggestions to enhance your CVs.</p>
+          }
+        }
+      </div>
+    </aside>
+  </div>
+</div>

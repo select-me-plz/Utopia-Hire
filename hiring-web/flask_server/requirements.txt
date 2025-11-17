@@ -1,0 +1,10 @@
+flask
+flask-cors
+playwright
+bs4
+re
+logging
+time
+spacy
+PyMuPDF
+langdetect
