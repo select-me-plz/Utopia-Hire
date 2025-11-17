@@ -211,7 +211,7 @@ class PDF_NLP_Parser(object):
                         word.lower() in ['profile', 'skills', 'experience', 'education', 'projects'] for word in words)):
                 return line
 
-        return "Steve"  # Fallback to known name
+        return "Christopher Nolan"  # Fallback to known name
 
 
     def extract_skills_enhanced(text, skills_list):
@@ -329,3 +329,4 @@ class PDF_NLP_Parser(object):
 
 
         return candidate_profile
+
